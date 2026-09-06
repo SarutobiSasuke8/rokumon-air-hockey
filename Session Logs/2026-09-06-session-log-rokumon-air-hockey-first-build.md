@@ -89,7 +89,8 @@ Raging Roulette used, entirely local (no git init, no push, no hub sync).
 | Landscape 960x540 table, goals on the left/right walls | Fits the existing Phaser scale config and keeps HUD, title, and rink all on one simple canvas | If a portrait/mobile-first pass is done later |
 | Custom multiplicative glide damping instead of Arcade's built-in `drag` | Arcade's linear drag decelerates at a constant rate regardless of speed; multiplicative damping keeps the puck feeling slippery at high speed while still settling, closer to real air hockey | If playtest says the puck stops too fast or too slow |
 | AI resamples its target only every `reactionDelayMs` (160ms) instead of every frame | Produces a believable human-like reaction lag without a separate position-history buffer | If the AI feels too twitchy or too sluggish after a human playtest |
-| No repo, no hub integration, no commit this pass | Explicit scope from the user: local-only work | When the user asks to publish/share this game |
+| No repo, no hub integration, no commit in the build pass | Explicit scope from the user: local-only work for the first build | Superseded same day: user asked to commit/push, repo created |
+| Created private GitHub repo `rokumon-air-hockey` and pushed `main` after the build pass | Follow-up user instruction to commit, push, and create a repo if needed, mirroring Raging Roulette's convention | If the game is later renamed or merged into another project |
 
 ## Files Touched
 
@@ -117,7 +118,7 @@ Raging Roulette used, entirely local (no git init, no push, no hub sync).
 |---|---|---|
 | Human playtest pass (desktop + phone) | Alexei | Needed before calling this Stage 2 confidently, or before any Stage 3 promotion |
 | AI difficulty tuning | Alexei / next session | Depends on the human playtest result |
-| No repo/commit/hub for this game yet | Alexei | Out of scope for this pass by explicit instruction |
+| No hub entry yet | Alexei | Repo/commit now done; hub sync still open |
 
 ## What Worked
 
