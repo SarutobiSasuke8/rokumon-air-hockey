@@ -5,7 +5,6 @@ created: 2026-10-02
 status: complete
 type: session-log
 mutability: append-only
-owner: "[[Alexei Udall]]"
 project: Rokumon Air Hockey
 agent: Codex
 tags:
@@ -59,3 +58,7 @@ The sweep repairs the existing control contract without tuning puck physics or a
 - `Templates/INPUT_CONTROL_MAP.md`
 - `Templates/PLAYTEST_CHECKLIST.md`
 - `docs/PROJECT_BRIEF.md`
+
+## CI Follow-up, 2026-10-02
+
+The first PR run passed gameplay tests/build but failed its contract job. The new log's vault-only owner link violated the repository's portability contract, so that metadata was removed. The Air Hockey workflow also still checked for starter template profiles and addons that are absent from this initialized game. The workflow now runs the existing agent-document and runtime-asset validators in separate steps; the validators themselves are unchanged. The gameplay build job continues to run the control regressions and production build.
