@@ -1,50 +1,83 @@
-# Vibe Coding Browser Game Template
+# Rokumon Air Hockey
 
-Starter template for browser games and playable prototypes. It keeps the collaboration discipline of the generalist template while adding runnable browser-game profiles, deterministic smoke-test hooks, asset contracts, and evidence-based playtest gates.
+A single-player browser air hockey game. You play one table against a computer opponent, and the first side to seven goals wins. It is a plain arcade game: there is no betting, no currency and no gambling mechanic of any kind.
 
-Use this when the first meaningful milestone is a playable loop, not a landing page or menu.
+It is part of the Rokumon Games family of small browser games.
 
-## Includes
+## Status
 
-- Agent-ready project contract and adapters with a game-specific quality bar (playable-first, protected playfield, responsive input).
-- Preserved agent collaboration layer: model adapters, persona council, specialist personas, session logs, and alignment checks.
-- Game-focused project brief.
-- Persona council and specialist prompts, including a Game Designer / Gameplay Lead persona and a `/playtest` slash command.
-- Playtest checklist (`Templates/PLAYTEST_CHECKLIST.md`), input/control map (`Templates/INPUT_CONTROL_MAP.md`), and asset pipeline conventions (`docs/ASSET_PIPELINE.md`).
-- `TODO.md` task capture, roadmap, setup checklist, and session logs.
-- Drift checks for agent docs.
-- Runnable Phaser + Vite profiles for plain JavaScript and TypeScript.
-- Optional Games Hub, mobile-first, and agentic-operations addons.
-- Architecture, distribution, tuning, save-state, asset-manifest, stage-gate, and playtest-report templates.
-- A reusable Phaser branded-HUD housing helper with authored safe areas,
-  containment auditing, and visual debug guides (`docs/UI_HOUSING.md`).
-- Template CI plus a profile-provided build workflow for initialized Phaser games.
-- Template notes explaining when to use this variant.
+Playable prototype. The build, type check and agent-document checks pass. A human feel pass on desktop and on a physical phone has not been done yet, so the AI difficulty and the puck feel are untuned by real play. There is no hub or hosted deployment.
 
-## First Milestone
+## Run it
 
-A playable vertical slice with:
+You need Node.js 22 or later (the CI workflow uses 22).
 
-- player input
-- visible objective
-- success/failure/restart state
-- basic HUD
-- short playtest checklist
+```bash
+npm install
+npm run dev
+```
 
-## Quality Bar
+Vite prints a local address to open in a browser.
 
-The first screen must be playable, not a menu pretending a game exists.
+Other scripts, as defined in `package.json`:
 
-## First Setup
+| Command | What it does |
+| --- | --- |
+| `npm run build` | Type checks with `tsc --noEmit`, then builds with Vite into `dist/`. |
+| `npm run preview` | Serves the built `dist/` folder locally. |
+| `npm run verify` | Runs the same checks as `build`. This is what CI runs. |
 
-1. Fill in `docs/PROJECT_BRIEF.md` and choose a browser-game profile.
-2. After creating a repository from this template, run `./scripts/init-browser-game.ps1 -Destination . -Profile phaser-js` from its root.
-3. Add `-GamesHub`, `-MobileFirst`, or `-AgenticOperations` only when the project needs them.
-4. Fill in `Templates/INPUT_CONTROL_MAP.md`, `Templates/GAMEPLAY_CONSTANTS.md`, and `Templates/ASSET_MANIFEST.json`.
-5. Replace starter tasks in `TODO.md`, then run `./scripts/check-agent-docs.ps1`.
-6. Verify the vertical slice with the smoke harness and `Templates/PLAYTEST_REPORT.md`.
-7. Run `./scripts/check-agent-docs.ps1 -Strict` once placeholders are replaced.
+## How to play
 
-## Scope
+- Click, tap or press Space on the title screen to start.
+- Your paddle is on the right and the computer's is on the left. Score by sending the puck into the goal in the left wall, and defend the goal in the right wall.
+- A goal triggers a short screen shake, a colour flash and a particle burst, then a brief serve delay before the puck is served again.
+- The first side to 7 goals wins. The end screen offers a restart with a click, a tap or Space.
 
-This is deliberately a browser-game template. It is optimized for Phaser, Three.js, and React Three Fiber projects; Unity, Godot, Roblox, and Unreal should get sibling templates that share the collaboration materials but respect their different editors and build pipelines.
+## Controls
+
+| Input | Action |
+| --- | --- |
+| Mouse (hold the button and drag) or touch drag | Move your paddle towards the pointer. |
+| Arrow keys or WASD | Move your paddle at a fixed speed (keyboard fallback). |
+| R | Restart the match. |
+| Space, click or tap | Start from the title screen, or play again from the end screen. |
+
+Known issue on this branch: after you have used the pointer, keyboard movement may stop responding, and R may not restart while a serve is pending. A fix is in open pull request #1 and is not part of `main`.
+
+## How it works
+
+- The table is a landscape 960 by 540 canvas with a goal in each end wall, a centre line and a centre circle.
+- The puck glides rather than rolling to a stop. Its speed is damped slightly every frame, it keeps most of its speed on wall bounces, and its speed is capped.
+- A moving paddle passes part of its own velocity to the puck on contact, so a fast swing hits harder than a stationary block.
+- The opponent only re-reads the puck position at a fixed interval, moves more slowly than a mouse flick, and retreats to a defensive position when the puck is in your half. It is meant to be beatable.
+- All tuning values live in `src/game/constants.ts`.
+- Game state (score, status, winner) is a plain object kept apart from the Phaser objects that draw it. The game scene updates it and emits a score event that the HUD scene listens for.
+
+## Tech
+
+- [Phaser](https://phaser.io/) 4 with Arcade Physics
+- TypeScript
+- [Vite](https://vitejs.dev/)
+- No test framework is configured.
+
+All visuals are generated at runtime and all sound effects are synthesised with the Web Audio API. The repository ships no image or audio files, and the asset manifest is intentionally empty.
+
+## Project layout
+
+- `src/main.ts`: Phaser game setup.
+- `src/scenes/`: title, game, HUD and game-over scenes.
+- `src/systems/`: input, audio and debug helpers.
+- `src/game/`: constants and run state.
+- `docs/`, `Templates/`, `personas/`, `Session Logs/`, `AGENTS.md` and the other agent files: the working agreement and notes from the browser game template this project started from. See `TEMPLATE_NOTES.md`.
+- `ROADMAP.md` and `TODO.md`: open work.
+
+## Open work
+
+- A human playtest on desktop and phone, using `Templates/PLAYTEST_CHECKLIST.md`.
+- Retuning the opponent's speed and reaction delay once that pass is done.
+- Possible later options: a reduced-motion setting for the goal shake, a second difficulty, or local two-player.
+
+## Licence
+
+See `LICENSE`.
