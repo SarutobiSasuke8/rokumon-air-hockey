@@ -70,6 +70,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
+    if (this.actions.restartPressed()) {
+      this.scene.stop("UI");
+      this.scene.start("Game");
+      return;
+    }
+
     this.updatePlayerPaddle(delta);
     this.updateAiPaddle(delta);
 
@@ -83,11 +89,6 @@ export class GameScene extends Phaser.Scene {
 
     this.state.elapsedMs += delta;
     this.applyPuckGlide(delta);
-
-    if (this.actions.restartPressed()) {
-      this.scene.stop("UI");
-      this.scene.start("Game");
-    }
   }
 
   // --- Construction -------------------------------------------------------
@@ -202,8 +203,8 @@ export class GameScene extends Phaser.Scene {
   private updatePlayerPaddle(delta: number): void {
     this.prevPlayer = { x: this.playerPaddle.x, y: this.playerPaddle.y };
 
-    const pointer = this.actions.pointerTarget();
     const kb = this.actions.keyboardVector();
+    const pointer = this.actions.pointerTarget();
 
     let targetX = this.playerPaddle.x;
     let targetY = this.playerPaddle.y;

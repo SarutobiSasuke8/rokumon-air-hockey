@@ -10,7 +10,7 @@ The single source of truth for how the game is controlled. Update this before or
 | Primary action (hit puck) | n/a - contact is automatic on overlap | n/a - contact is automatic on overlap | not supported |
 | Secondary action | none | none | not supported |
 | Pause / menu | none this pass | none this pass | not supported |
-| Restart | `R` (mid-round instant restart) / `Space` on title or end screen | Click / tap on title or end screen | not supported |
+| Restart | `R` during play or serving / `Space` on title or end screen | Click / tap on title or end screen | not supported |
 
 ## Rules
 
@@ -22,4 +22,5 @@ The single source of truth for how the game is controlled. Update this before or
 ## Notes
 
 - Input model (polled / event-driven / hybrid): hybrid. Pointer position is captured via `pointermove`/`pointerdown` events into a `lastPointer` value; keyboard state is polled every frame via `Phaser.Input.Keyboard.Key.isDown`. Both feed the same per-frame paddle-target logic in `GameScene.updatePlayerPaddle`.
+- Pressing a direction key takes over from the pointer and clears its old target. Releasing the key leaves the paddle in place; a new click or drag restores pointer control.
 - Dead zones, buffering, or coyote-time decisions: none. The player paddle is hard-clamped to its half of the table (`x > centerX + radius`) and to the table's vertical bounds every frame; there is no buffering on the restart key (`Phaser.Input.Keyboard.JustDown` triggers once per press).

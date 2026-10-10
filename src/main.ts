@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import Phaser from "phaser";
 import { BootScene } from "./scenes/BootScene.js";
 import { MenuScene } from "./scenes/MenuScene.js";
@@ -5,7 +6,7 @@ import { GameScene } from "./scenes/GameScene.js";
 import { UIScene } from "./scenes/UIScene.js";
 import { GameOverScene } from "./scenes/GameOverScene.js";
 
-new Phaser.Game({
+const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: "app",
   width: 960,
@@ -24,3 +25,6 @@ new Phaser.Game({
   },
   scene: [BootScene, MenuScene, GameScene, UIScene, GameOverScene],
 });
+
+// Development-only scene access for browser control regressions.
+if (import.meta.env.DEV) (window as unknown as { __game: Phaser.Game }).__game = game;

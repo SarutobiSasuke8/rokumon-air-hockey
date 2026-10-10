@@ -1,4 +1,4 @@
-name: Template Contract
+name: Game Project Contract
 
 on:
   pull_request:
@@ -23,7 +23,9 @@ on:
       - "personas/**"
       - "Session Logs/**"
       - "Templates/**"
+      - "assets/asset-manifest.json"
       - "scripts/check-agent-docs.ps1"
+      - "scripts/validate-assets.ps1"
       - "scripts/verify-template.ps1"
   push:
     branches:
@@ -49,7 +51,9 @@ on:
       - "personas/**"
       - "Session Logs/**"
       - "Templates/**"
+      - "assets/asset-manifest.json"
       - "scripts/check-agent-docs.ps1"
+      - "scripts/validate-assets.ps1"
       - "scripts/verify-template.ps1"
 
 jobs:
@@ -57,6 +61,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check template contract
+      - name: Check agent contract
         shell: pwsh
-        run: ./scripts/verify-template.ps1
+        run: ./scripts/check-agent-docs.ps1
+      - name: Check runtime asset manifest
+        shell: pwsh
+        run: ./scripts/validate-assets.ps1
