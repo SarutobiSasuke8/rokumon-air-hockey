@@ -81,3 +81,11 @@ All visuals are generated at runtime and all sound effects are synthesised with 
 ## Licence
 
 See `LICENSE`.
+
+## Rokumon hub events
+
+The optional `/hub-bridge.js` SDK receives ready, player score after each goal and gameOver at match end. Missing or broken SDK calls are safe no-ops. The static `dist/` bundle uses relative asset URLs.
+
+- `match-won`: playerScore (number), opponentScore (number), seconds (number). Emitted once when the player reaches 7.
+
+Run `npm test` for forwarding and standalone regression checks.

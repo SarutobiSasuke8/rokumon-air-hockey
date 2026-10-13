@@ -291,7 +291,7 @@ export class GameScene extends Phaser.Scene {
     else this.state.aiScore += 1;
 
     this.game.events.emit("score-changed", { player: this.state.playerScore, ai: this.state.aiScore });
-    hub.score(scorer === "player" ? this.state.playerScore : this.state.aiScore);
+    hub.score(this.state.playerScore);
 
     this.juiceGoal(scorer);
 
@@ -302,6 +302,7 @@ export class GameScene extends Phaser.Scene {
       this.state.status = "complete";
       this.state.winner = win ? "player" : "ai";
       hub.gameOver(this.state.playerScore, this.state.elapsedMs);
+      if (win) hub.event("match-won", { playerScore: this.state.playerScore, opponentScore: this.state.aiScore, seconds: Math.round(this.state.elapsedMs / 1000) });
       sfx.matchEnd(win);
       this.time.delayedCall(MATCH.serveDelayMs, () => {
         this.scene.stop("UI");
