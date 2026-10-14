@@ -89,3 +89,7 @@ The optional `/hub-bridge.js` SDK receives ready, player score after each goal a
 - `match-won`: playerScore (number), opponentScore (number), seconds (number). Emitted once when the player reaches 7.
 
 Run `npm test` for forwarding and standalone regression checks.
+
+## Automated physics checks
+
+`npm test` runs mixed-input, SDK and renderer-free tests against the shipped scene methods: first-to-7 for either side, terminal goal deduplication, player/CPU paddle bounds and collision speed caps. `node scripts/hub-smoke.mjs` boots the static build in Chromium with and without the SDK. Both run in game.yml on PRs. These checks do not establish human judgement of physics feel.
