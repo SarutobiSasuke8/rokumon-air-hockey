@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { TABLE } from "../game/constants.js";
+import { sfx } from "../systems/audio.js";
 
 /**
  * Score HUD, launched alongside GameScene. Kept as a separate scene (rather
@@ -7,6 +8,9 @@ import { TABLE } from "../game/constants.js";
  * has to fight the playfield for layout on resize; it listens for the
  * "score-changed" event on the global game event emitter instead of reaching
  * into GameScene state directly.
+ *
+ * It also owns the pause overlay (the Game scene cannot take input while it is
+ * paused) and the sound toggle.
  */
 export class UIScene extends Phaser.Scene {
   private playerText!: Phaser.GameObjects.Text;
@@ -48,10 +52,67 @@ export class UIScene extends Phaser.Scene {
     };
     this.game.events.on("score-changed", onScore);
 
+    // Sound toggle, top-right of the HUD strip. M toggles it too.
+    const soundLabel = () => (sfx.muted ? "SOUND OFF" : "SOUND ON");
+    const soundButton = this.add
+      .text(TABLE.x1, 14, soundLabel(), { fontFamily: "sans-serif", fontSize: "20px", fontStyle: "bold", color: "#93c5fd" })
+      .setOrigin(1, 0)
+      .setPadding(14, 10, 0, 10)
+      .setInteractive({ useHandCursor: true });
+    const toggleSound = () => {
+      sfx.unlock();
+      sfx.toggleMute();
+      soundButton.setText(soundLabel());
+    };
+    soundButton.on("pointerdown", toggleSound);
+
+    // Pause overlay: shown when the tab is hidden or the window loses focus
+    // mid-match, so the puck never keeps sliding while nobody is watching.
+    const overlay = this.add
+      .container(0, 0, [
+        this.add.rectangle(TABLE.centerX, TABLE.height / 2, TABLE.width, TABLE.height, 0x0b1020, 0.78),
+        this.add
+          .text(TABLE.centerX, 230, "PAUSED", { fontFamily: "sans-serif", fontSize: "48px", fontStyle: "bold", color: "#e7efff" })
+          .setOrigin(0.5),
+        this.add
+          .text(TABLE.centerX, 300, "Tap, click or press Space to resume", { fontFamily: "sans-serif", fontSize: "22px", color: "#fbbf24" })
+          .setOrigin(0.5),
+      ])
+      .setDepth(100)
+      .setVisible(false);
+
+    const matchStatus = () =>
+      (this.scene.get("Game") as unknown as { state?: { status?: string } }).state?.status;
+    const isPaused = () => this.scene.isPaused("Game");
+    const pause = () => {
+      if (!this.scene.isActive("Game") || matchStatus() === "complete") return;
+      this.scene.pause("Game");
+      overlay.setVisible(true);
+    };
+    const resume = () => {
+      if (!isPaused()) return;
+      sfx.unlock(); // Mobile browsers can suspend the AudioContext while the tab is hidden.
+      overlay.setVisible(false);
+      this.scene.resume("Game");
+    };
+
+    this.game.events.on(Phaser.Core.Events.HIDDEN, pause);
+    this.game.events.on(Phaser.Core.Events.BLUR, pause);
+    this.input.on("pointerdown", (_pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
+      if (isPaused() && !over.includes(soundButton)) resume();
+    });
+    const keyboard = this.input.keyboard!;
+    keyboard.on("keydown-SPACE", resume);
+    keyboard.on("keydown-P", () => (isPaused() ? resume() : pause()));
+    keyboard.on("keydown-ESC", () => (isPaused() ? resume() : pause()));
+    keyboard.on("keydown-M", toggleSound);
+
     // The scene stops on every goal/restart cycle from GameScene; detach the
-    // listener so it does not pile up on the shared emitter.
+    // listeners so they do not pile up on the shared emitter.
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.game.events.off("score-changed", onScore);
+      this.game.events.off(Phaser.Core.Events.HIDDEN, pause);
+      this.game.events.off(Phaser.Core.Events.BLUR, pause);
     });
   }
 }

@@ -4,8 +4,34 @@ import Phaser from "phaser";
 
 type ToneType = OscillatorType;
 
+const MUTE_KEY = "rokumon-air-hockey:muted";
+
+function readMuted(): boolean {
+  try {
+    return window.localStorage.getItem(MUTE_KEY) === "1";
+  } catch {
+    return false; // Storage blocked (private mode, sandboxed iframe): default to sound on.
+  }
+}
+
 class SfxSystem {
   private ctx: AudioContext | null = null;
+  private mutedFlag = readMuted();
+
+  get muted(): boolean {
+    return this.mutedFlag;
+  }
+
+  /** Flip mute, remember it for the next visit, and return the new state. */
+  toggleMute(): boolean {
+    this.mutedFlag = !this.mutedFlag;
+    try {
+      window.localStorage.setItem(MUTE_KEY, this.mutedFlag ? "1" : "0");
+    } catch {
+      /* Not persisted when storage is blocked; the toggle still works this session. */
+    }
+    return this.mutedFlag;
+  }
 
   /** Must be called from a user-gesture handler (click/tap/keydown). */
   unlock(): void {
@@ -19,7 +45,7 @@ class SfxSystem {
   }
 
   private tone(freq: number, durationMs: number, type: ToneType, gain: number): void {
-    if (!this.ctx) return;
+    if (!this.ctx || this.mutedFlag) return;
     const ctx = this.ctx;
     const osc = ctx.createOscillator();
     const amp = ctx.createGain();

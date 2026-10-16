@@ -41,6 +41,8 @@ Other scripts, as defined in `package.json`:
 | Mouse (hold the button and drag) or touch drag | Move your paddle towards the pointer. |
 | Arrow keys or WASD | Move your paddle at a fixed speed (keyboard fallback). |
 | R | Restart the match. |
+| P or Esc | Pause or resume. The match also pauses by itself when the tab is hidden or the window loses focus; tap, click or press Space to resume. |
+| M, or the SOUND button top right | Turn sound effects on or off. The choice is remembered on this device. |
 | Space, click or tap | Start from the title screen, or play again from the end screen. |
 
 Known issue on this branch: after you have used the pointer, keyboard movement may stop responding, and R may not restart while a serve is pending. A fix is in open pull request #1 and is not part of `main`.
