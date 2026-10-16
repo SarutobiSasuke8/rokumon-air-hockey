@@ -26,5 +26,8 @@ const game = new Phaser.Game({
   scene: [BootScene, MenuScene, GameScene, UIScene, GameOverScene],
 });
 
+// Drop the static "LOADING TABLE" line once Phaser has booted.
+game.events.once(Phaser.Core.Events.READY, () => document.getElementById("loading")?.remove());
+
 // Development-only scene access for browser control regressions.
 if (import.meta.env.DEV) (window as unknown as { __game: Phaser.Game }).__game = game;
