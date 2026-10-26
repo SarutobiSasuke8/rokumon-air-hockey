@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "node scripts/test-controls.mjs && node scripts/test-hub.mjs && node scripts/test-physics.mjs",
-    "verify": "npm test && npm run build"
+    "verify": "npm test && npm run build",
+    "test:browser": "node scripts/hub-smoke.mjs"
   },
   "dependencies": {
     "phaser": "^4.2.1"

@@ -31,7 +31,7 @@ export class MenuScene extends Phaser.Scene {
       .text(
         TABLE.centerX,
         320,
-        "Drag your mallet (cyan, right side) with the mouse or your finger.\nArrow keys / WASD also work.",
+        "Move your mallet (cyan, right half) with the mouse or a finger.\nArrow keys / WASD also work. Score in the pink goal on the left.",
         {
           fontFamily: "sans-serif",
           fontSize: "18px",

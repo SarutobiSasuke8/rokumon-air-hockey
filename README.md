@@ -6,7 +6,7 @@ It is part of the Rokumon Games family of small browser games.
 
 ## Status
 
-Playable prototype. The build, type check and agent-document checks pass. A human feel pass on desktop and on a physical phone has not been done yet, so the AI difficulty and the puck feel are untuned by real play. There is no hub or hosted deployment.
+Public beta candidate (October 2026). A full match plays to completion on desktop (mouse or keyboard) and on phones (touch), and an automated browser test plays whole matches on both. The AI is tuned against scripted players, not yet against many people, so difficulty may still move after beta feedback.
 
 ## Run it
 
@@ -25,43 +25,45 @@ Other scripts, as defined in `package.json`:
 | --- | --- |
 | `npm run build` | Type checks with `tsc --noEmit`, then builds with Vite into `dist/`. |
 | `npm run preview` | Serves the built `dist/` folder locally. |
-| `npm run verify` | Runs the same checks as `build`. This is what CI runs. |
+| `npm test` | Node checks: input, Rokumon SDK, physics edge cases, rules and 12 headless seeded matches. |
+| `npm run verify` | `npm test`, then `build`. This is what CI runs. |
+| `npm run test:browser` | After a build: boots the static bundle in Chromium, then plays full matches with real mouse input (desktop) and touch input (two phone viewports). CI runs this as `node scripts/hub-smoke.mjs`. |
 
 ## How to play
 
 - Click, tap or press Space on the title screen to start.
-- Your paddle is on the right and the computer's is on the left. Score by sending the puck into the goal in the left wall, and defend the goal in the right wall.
-- A goal triggers a short screen shake, a colour flash and a particle burst, then a brief serve delay before the puck is served again.
+- Your mallet is on the right (cyan) and the computer's is on the left (pink). Score in the pink goal on the left wall, and defend the cyan goal on the right.
+- Whoever concedes gets the puck: it waits, blinking, on their side for under a second, then goes live.
+- If the puck sits in one half for 7 seconds, it passes to the other side (a notice shows at the bottom).
+- A goal triggers a short screen shake, a colour flash and a particle burst.
 - The first side to 7 goals wins. The end screen offers a restart with a click, a tap or Space.
 
 ## Controls
 
 | Input | Action |
 | --- | --- |
-| Mouse (hold the button and drag) or touch drag | Move your paddle towards the pointer. |
-| Arrow keys or WASD | Move your paddle at a fixed speed (keyboard fallback). |
+| Mouse (just move it, no click needed) or touch drag | Your mallet follows the pointer, up to a fast but finite speed. |
+| Arrow keys or WASD | Move your mallet at a fixed speed. The next mouse move takes control back. |
 | R | Restart the match. |
 | P or Esc | Pause or resume. The match also pauses by itself when the tab is hidden or the window loses focus; tap, click or press Space to resume. |
 | M, or the SOUND button top right | Turn sound effects on or off. The choice is remembered on this device. |
 | Space, click or tap | Start from the title screen, or play again from the end screen. |
 
-Known issue on this branch: after you have used the pointer, keyboard movement may stop responding, and R may not restart while a serve is pending. A fix is in open pull request #1 and is not part of `main`.
-
 ## How it works
 
 - The table is a landscape 960 by 540 canvas with a goal in each end wall, a centre line and a centre circle.
-- The puck glides rather than rolling to a stop. Its speed is damped slightly every frame, it keeps most of its speed on wall bounces, and its speed is capped.
-- A moving paddle passes part of its own velocity to the puck on contact, so a fast swing hits harder than a stationary block.
-- The opponent only re-reads the puck position at a fixed interval, moves more slowly than a mouse flick, and retreats to a defensive position when the puck is in your half. It is meant to be beatable.
+- The match runs in `src/game/sim.ts` at a fixed 240 steps a second, with no Phaser imports. The game scene feeds it the pointer or keyboard target, then draws the result, plays sound and reports to the Rokumon SDK.
+- Puck physics (`src/game/physics.ts`): each step is split so nothing moves more than half a puck radius at a time, and mallet contacts are solved as a swept circle test in the mallet's frame. A fast puck or a fast swing cannot pass through a mallet, and the puck cannot leave the table except through a goal mouth. Mallets act as heavy objects, so a swing hits harder than a block. The goal mouths have round posts.
+- The opponent (`src/game/ai.ts`) re-reads the puck every 120 ms, moves at a capped speed, predicts bank shots when defending, steps into the puck to return it, and attacks with straight or banked shots at a randomly offset aim point. It is meant to be beatable.
 - All tuning values live in `src/game/constants.ts`.
-- Game state (score, status, winner) is a plain object kept apart from the Phaser objects that draw it. The game scene updates it and emits a score event that the HUD scene listens for.
+- Test-only query flags: `?seed=N` (repeatable kick-off and AI aim), `?speed=K` (run 1 to 8 times faster) and `?manual=1` (the match only advances through `window.__GAME_DEBUG__.tick()`, which the browser test uses).
 
 ## Tech
 
-- [Phaser](https://phaser.io/) 4 with Arcade Physics
+- [Phaser](https://phaser.io/) 4 for rendering and input (no Phaser physics engine)
 - TypeScript
 - [Vite](https://vitejs.dev/)
-- No test framework is configured.
+- Plain Node scripts and Playwright for tests (no test framework).
 
 All visuals are generated at runtime and all sound effects are synthesised with the Web Audio API. The repository ships no image or audio files, and the asset manifest is intentionally empty.
 
@@ -70,14 +72,14 @@ All visuals are generated at runtime and all sound effects are synthesised with 
 - `src/main.ts`: Phaser game setup.
 - `src/scenes/`: title, game, HUD and game-over scenes.
 - `src/systems/`: input, audio and debug helpers.
-- `src/game/`: constants and run state.
+- `src/game/`: constants, run state, physics, AI and the match simulation (no Phaser imports).
 - `docs/`, `Templates/`, `personas/`, `Session Logs/`, `AGENTS.md` and the other agent files: the working agreement and notes from the browser game template this project started from. See `TEMPLATE_NOTES.md`.
 - `ROADMAP.md` and `TODO.md`: open work.
 
 ## Open work
 
-- A human playtest on desktop and phone, using `Templates/PLAYTEST_CHECKLIST.md`.
-- Retuning the opponent's speed and reaction delay once that pass is done.
+- Beta feedback on AI difficulty (`AI` in `src/game/constants.ts`).
+- On a phone held upright the table is small; the page asks the player to turn the phone sideways. A portrait table layout is not built.
 - Possible later options: a reduced-motion setting for the goal shake, a second difficulty, or local two-player.
 
 ## Licence
@@ -94,4 +96,4 @@ Run `npm test` for forwarding and standalone regression checks.
 
 ## Automated physics checks
 
-`npm test` runs mixed-input, SDK and renderer-free tests against the shipped scene methods: first-to-7 for either side, terminal goal deduplication, player/CPU paddle bounds and collision speed caps. `node scripts/hub-smoke.mjs` boots the static build in Chromium with and without the SDK. Both run in game.yml on PRs. These checks do not establish human judgement of physics feel.
+`npm test` runs the Node checks: swept-collision cases (pucks up to 20,000 px/s against a mallet, mallet swings of 900 px in one step), a 600-shot wall fuzz at three frame rates, goal mouths and posts, a puck pinned against a wall, mallet bounds, scoring to 7 with a single match-over, the 7-second rule, and 12 headless seeded matches against a scripted player. `node scripts/hub-smoke.mjs` boots the static build in Chromium with and without the SDK, then runs `scripts/test-match-browser.mjs`: three full matches with real mouse and touch input on desktop and phone viewports, the result screen, restart and SDK calls, plus a real-time control check. Both run in game.yml on PRs. Set `SCREENSHOT_DIR` to keep screenshots. These checks do not replace a human judgement of feel.

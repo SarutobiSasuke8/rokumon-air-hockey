@@ -23,6 +23,7 @@ Small one-line fixes do not need a session log unless the user asks.
 
 ## Logs
 
+- [Relist fixes: playable full match](2026-10-26-relist-playable-match.md)
 - [Controls Repair](2026-10-02-session-log-controls-repair.md)
 - [Rokumon Air Hockey first build](2026-09-06-session-log-rokumon-air-hockey-first-build.md)
 
