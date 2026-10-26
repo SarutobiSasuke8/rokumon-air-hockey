@@ -39,12 +39,24 @@ export class UIScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0);
 
+    // Labels sit beside the numbers so nothing overlaps the table edge.
     this.add
-      .text(TABLE.width * 0.32, 66, "AI", { fontFamily: "sans-serif", fontSize: "14px", color: "#fb7185" })
-      .setOrigin(0.5, 0);
+      .text(TABLE.width * 0.32 - 34, 40, "AI", { fontFamily: "sans-serif", fontSize: "16px", fontStyle: "bold", color: "#fb7185" })
+      .setOrigin(1, 0.5);
     this.add
-      .text(TABLE.width * 0.68, 66, "YOU", { fontFamily: "sans-serif", fontSize: "14px", color: "#22d3ee" })
-      .setOrigin(0.5, 0);
+      .text(TABLE.width * 0.68 + 34, 40, "YOU", { fontFamily: "sans-serif", fontSize: "16px", fontStyle: "bold", color: "#22d3ee" })
+      .setOrigin(0, 0.5);
+
+    // Short notices (the 7-second possession rule) along the bottom edge.
+    const toast = this.add
+      .text(TABLE.centerX, TABLE.y1 + 20, "", { fontFamily: "sans-serif", fontSize: "18px", color: "#fbbf24" })
+      .setOrigin(0.5);
+    const onToast = (message: string) => {
+      toast.setText(message).setAlpha(1);
+      this.tweens.killTweensOf(toast);
+      this.tweens.add({ targets: toast, alpha: 0, delay: 1400, duration: 400 });
+    };
+    this.game.events.on("toast", onToast);
 
     const onScore = (payload: { player: number; ai: number }) => {
       this.playerText.setText(String(payload.player));
@@ -111,6 +123,7 @@ export class UIScene extends Phaser.Scene {
     // listeners so they do not pile up on the shared emitter.
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.game.events.off("score-changed", onScore);
+      this.game.events.off("toast", onToast);
       this.game.events.off(Phaser.Core.Events.HIDDEN, pause);
       this.game.events.off(Phaser.Core.Events.BLUR, pause);
     });

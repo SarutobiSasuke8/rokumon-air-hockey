@@ -5,6 +5,7 @@ import { MenuScene } from "./scenes/MenuScene.js";
 import { GameScene } from "./scenes/GameScene.js";
 import { UIScene } from "./scenes/UIScene.js";
 import { GameOverScene } from "./scenes/GameOverScene.js";
+import { installDebug } from "./systems/debug.js";
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -16,18 +17,13 @@ const game = new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  physics: {
-    default: "arcade",
-    arcade: {
-      gravity: { x: 0, y: 0 },
-      debug: false,
-    },
-  },
   scene: [BootScene, MenuScene, GameScene, UIScene, GameOverScene],
 });
 
 // Drop the static "LOADING TABLE" line once Phaser has booted.
 game.events.once(Phaser.Core.Events.READY, () => document.getElementById("loading")?.remove());
 
+// Test hooks (state snapshot, deterministic stepping) used by the browser tests.
+installDebug(game);
 // Development-only scene access for browser control regressions.
 if (import.meta.env.DEV) (window as unknown as { __game: Phaser.Game }).__game = game;
