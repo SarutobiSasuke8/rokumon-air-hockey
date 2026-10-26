@@ -2,40 +2,45 @@
 
 Keep all player-facing tuning in named groups. Tune through a human playtest, not by intuition alone.
 
-All values below live in `src/game/constants.ts` (`PUCK`, `PADDLE`, `AI`, `MATCH`, `GOAL`, `TABLE`). This table exists so tuning changes are visible without reading the source.
+All values below live in `src/game/constants.ts` (`PUCK`, `PADDLE`, `AI`, `MATCH`, `GOAL`, `TABLE`, `SIM`). This table exists so tuning changes are visible without reading the source.
 
 ## Puck Physics (glide and rebound)
 
 | Constant | Value | Why | Verified in |
 |---|---:|---|---|
-| Puck radius | 13px | small relative to the 480x430 playfield; leaves room to dodge | code read |
-| Wall bounce (restitution) | 0.94 | most of the puck's speed survives a rail hit so rebounds stay lively, not dead | code read; `sfx.wallHit()` fires on every wall collider hit |
-| Glide damping | 0.9985 per 16.67ms frame (~0.15%/frame) | multiplicative, near-1 damping applied every frame in `applyPuckGlide` so the puck decelerates gradually and glides across the whole table instead of stopping quickly like a rolling ball | code read |
-| Max speed | 760 px/s | hard cap via `setMaxVelocity`, applied again after every paddle hit so hits cannot runaway-accelerate the puck past a controllable speed | code read |
-| Serve speed | 260 px/s at a random -0.5..0.5 rad angle, alternating side each serve | gentle enough that the receiving side always has a fair first read | code read |
+| Puck radius | 13px | small relative to the 440x430 half-table; leaves room to dodge | code read |
+| Wall restitution | 0.9 | most of the puck's speed survives a rail hit so rebounds stay lively | `scripts/test-physics.mjs` wall fuzz |
+| Glide friction | 0.32 per second (exponential) | the puck glides across the whole table instead of stopping like a rolling ball | headless matches |
+| Max speed | 1100 px/s | fast enough to beat a defender with a good shot, slow enough to read; applied after every mallet contact | `scripts/test-physics.mjs` |
+| Serve | puck waits still on the conceding side, 150px from the centre line, for 900ms | the side that conceded gets a fair first touch | `scripts/test-physics.mjs` rules checks |
+| Physics rate | 240 Hz, each step split so nothing moves more than half a puck radius | prevents tunnelling through walls and mallets | 20,000 px/s puck and 900 px swing checks |
 
-## Paddle Physics (the hit)
+## Mallet Physics (the hit)
 
 | Constant | Value | Why | Verified in |
 |---|---:|---|---|
-| Paddle radius | 27px | large enough to feel controllable, small enough that misses are possible | code read |
-| Hit transfer | 0.85 x the striking paddle's own velocity (estimated from position delta over the previous frame) added to the puck's velocity on collision | this is what makes a fast paddle swing feel like a smack instead of a passive deflection; a stationary paddle still redirects the puck via the Arcade bounce alone | code read in `onPaddleHit` |
-| Minimum hit speed (for the SFX pitch floor only) | 180 px/s | keeps even a soft touch audible without implying a soft touch changes puck physics | code read |
+| Mallet radius | 27px | large enough to feel controllable, small enough that misses are possible | code read |
+| Mallet restitution | 0.85 | mallets act as heavy objects: a swing adds its speed, a still mallet blocks with a firm rebound | `scripts/test-physics.mjs` |
+| Player mallet max speed | 3200 px/s | the mallet chases the pointer fast enough to feel 1:1 but a flick is spread over steps, so the hit speed is real | `scripts/test-controls.mjs` |
+| Keyboard speed | 520 px/s | fallback control | `scripts/test-controls.mjs` |
 
 ## AI Opponent
 
 | Constant | Value | Why | Verified in |
 |---|---:|---|---|
-| Max speed | 300 px/s | deliberately below what a mouse flick can achieve, so the AI is competitive but beatable, not a wall | code read |
-| Reaction delay | 160ms | the AI only re-reads the puck's position/tracks a new target once per 160ms window, matching a believable human reaction lag instead of a frame-perfect tracker | code read in `updateAiPaddle` |
-| Home position | table's own-goal side, inset 150px from the back wall, vertically centered | gives the AI a default defensive stance when the puck is in the player's half, instead of camping the goal mouth | code read |
-| Advance limit | stays at least 40px back from the center line even when chasing | prevents the AI from crossing into the player's half | code read |
+| Max speed | 680 px/s | well below a mouse flick, so it is competitive but beatable | headless matches against scripted players at three strengths |
+| Reaction | re-reads the puck every 120ms | believable lag instead of a frame-perfect tracker | code read |
+| Aim error | +/-70px around the goal centre, straight or banked off a side wall | its shots vary, so it can score but also miss | headless matches |
+| Guard line | 46px in front of its goal line, predicting banked shots | a defensive stance that steps into the puck to return it | headless matches |
+| Strike speed | attacks a puck on its side slower than 560 px/s | stops it from swiping at shots it can only block | code read |
 
 ## Match / Feel
 
 | Constant | Value | Why | Verified in |
 |---|---:|---|---|
-| Win score | 7 | short enough for a quick session, long enough that one lucky bounce doesn't decide the match | code read |
-| Serve delay | 1100ms | pause after a goal before the next serve so the goal celebration (shake/flash/particles) reads clearly | code read |
+| Win score | 7 | short enough for a quick session, long enough that one lucky bounce doesn't decide the match | browser match test |
+| Goal mouth | 200px tall (half-height 100) with round posts | enough goals that a match lasts about 2 to 4 minutes | headless matches |
+| Possession limit | 7 seconds in one half, then the puck passes to the other side | a parked puck can never stall a match | `scripts/test-physics.mjs` |
+| End delay | 1400ms after the winning goal, then the result screen (input ignored for its first 600ms) | lets the goal celebration read; avoids an accidental restart | browser match test |
 | Goal camera shake | 180ms, 0.008 intensity | noticeable without being disorienting; no reduced-motion toggle exists yet (see Open Questions in `docs/PROJECT_BRIEF.md`) | code read |
 | Audio default | on by default; WebAudio context unlocks on the first click/tap/keydown (`sfx.unlock()`), since browsers block autoplay before a user gesture | code read |

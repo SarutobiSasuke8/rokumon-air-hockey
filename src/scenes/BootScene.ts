@@ -12,7 +12,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.makeCircleTexture("tex-puck", PUCK.radius, 0x111827, 0x4b5563);
+    this.makeCircleTexture("tex-puck", PUCK.radius, 0xf8fafc, 0xfbbf24);
     this.makeCircleTexture("tex-paddle-player", PADDLE.radius, 0x22d3ee, 0x0e7490);
     this.makeCircleTexture("tex-paddle-ai", PADDLE.radius, 0xfb7185, 0x9f1239);
     this.makeCircleTexture("tex-particle", 6, 0xffffff, 0xffffff);

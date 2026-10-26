@@ -48,7 +48,11 @@ export class GameOverScene extends Phaser.Scene {
       this.scene.start("Game");
     };
 
-    this.input.keyboard!.once("keydown-SPACE", restart);
-    this.input.once("pointerdown", restart);
+    // A short guard so a tap or key still held from the last rally does not
+    // skip the result screen.
+    this.time.delayedCall(600, () => {
+      this.input.keyboard!.once("keydown-SPACE", restart);
+      this.input.once("pointerdown", restart);
+    });
   }
 }

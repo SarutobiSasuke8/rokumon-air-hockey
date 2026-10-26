@@ -52,3 +52,7 @@ try {
   await browser.close();
   await new Promise(resolve => server.close(resolve));
 }
+
+// CI runs this file after installing Chromium, so the full-match browser test
+// (desktop mouse and phone touch, first to 7, restart) runs from here too.
+await import("./test-match-browser.mjs");
