@@ -1,42 +1,52 @@
+// Rokumon SDK checks: the optional bridge forwards calls when present and is
+// silent when absent, and the real match-end path reports exactly once.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
+import { loadTs } from "./lib/load-ts.mjs";
+
 const code = ts.transpileModule(readFileSync("src/integrations/hub.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
-for (const present of [true, false]) {
-  const calls = []; const exports = {};
-  const window = present ? { Hub: Object.fromEntries(["ready", "score", "gameOver", "event"].map(name => [name, (...args) => calls.push({ name, args })])) } : {};
+const sdk = (present, calls) => {
+  const exports = {};
+  const window = present ? { Hub: Object.fromEntries(["ready", "score", "gameOver", "event"].map((name) => [name, (...args) => calls.push({ name, args })])) } : {};
   vm.runInNewContext(code, { exports, window });
-  exports.hub.ready(); exports.hub.score(7); exports.hub.gameOver(7, 42000); exports.hub.event("match-won", { playerScore: 7, opponentScore: 3, seconds: 42 });
+  return exports;
+};
+for (const present of [true, false]) {
+  const calls = [];
+  const { hub } = sdk(present, calls);
+  hub.ready(); hub.score(7); hub.gameOver(7, 42000); hub.event("match-won", { playerScore: 7, opponentScore: 3, seconds: 42 });
   assert.equal(calls.length, present ? 4 : 0);
-  if (present) assert.deepEqual(calls.map(c => c.name), ["ready", "score", "gameOver", "event"]);
 }
 console.log("SDK forwarding and absent SDK checks passed");
 
-const constants = {};
-vm.runInNewContext(ts.transpileModule(readFileSync("src/game/constants.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: constants });
+const constants = loadTs("src/game/constants.ts");
 for (const present of [true, false]) {
-  const calls = []; const exports = {};
-  const sdkExports = {}; const window = present ? { Hub: Object.fromEntries(["ready", "score", "gameOver", "event"].map(name => [name, (...args) => calls.push({ name, args })])) } : {};
-  vm.runInNewContext(code, { exports: sdkExports, window });
-  const imports = { "phaser": { default: { Scene: class {} } }, "../game/constants.js": constants, "../integrations/hub.js": sdkExports };
-  const sceneCode = ts.transpileModule(readFileSync("src/scenes/GameScene.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
-  vm.runInNewContext(sceneCode, { exports, require: name => imports[name] });
-  const scene = { state: { status: "playing", playerScore: 6, aiScore: 3, elapsedMs: 42000 }, game: { events: { emit() {} } }, juiceGoal() {}, time: { delayedCall() {} } };
-  // Audio is another optional side effect for this renderer-free goal probe.
-  imports["../systems/audio.js"] = { sfx: { matchEnd() {} } };
-  // Imports are bound during module evaluation, so reload after adding audio.
-  vm.runInNewContext(sceneCode, { exports, require: name => imports[name] });
-  exports.GameScene.prototype.onGoal.call(scene, "player");
-  assert.equal(scene.state.status, "complete");
-  assert.equal(scene.state.winner, "player");
-  exports.GameScene.prototype.onGoal.call(scene, "player");
-  if (present) {
-    assert.deepEqual(calls.map(c => c.name), ["score", "gameOver", "event"]);
-    assert.equal(calls[0].args[0], 7);
-    assert.equal(calls[1].args[1], 42000);
-    assert.equal(calls[2].args[0], "match-won");
-    assert.equal(JSON.stringify(calls[2].args[1]), JSON.stringify({ playerScore: 7, opponentScore: 3, seconds: 42 }));
-  } else assert.equal(calls.length, 0);
+  for (const winner of ["player", "ai"]) {
+    const calls = [];
+    const stubs = { phaser: { Scene: class {} }, "../integrations/hub.js": sdk(present, calls), "../systems/audio.js": { sfx: { matchEnd() {}, goal() {} } } };
+    const { GameScene } = loadTs("src/scenes/GameScene.ts", stubs);
+    const { createWorld, stepWorld } = loadTs("src/game/sim.ts", stubs);
+    const world = createWorld(9);
+    Object.assign(world.run, { status: "playing", playerScore: winner === "player" ? 6 : 3, aiScore: winner === "ai" ? 6 : 3, elapsedMs: 42000 });
+    const scene = Object.assign(Object.create(GameScene.prototype), { world, game: { events: { emit() {} } }, juiceGoal() {} });
+    // Drive the real simulation into the winner's goal and hand its events to the scene.
+    Object.assign(world.puck, winner === "player" ? { x: constants.TABLE.x0 + 5, vx: -900 } : { x: constants.TABLE.x1 - 5, vx: 900 }, { y: constants.TABLE.centerY, vy: 0 });
+    world.ai = { x: 300, y: 120 };
+    world.player = { x: 700, y: 120 };
+    for (let i = 0; i < 2000; i += 1) for (const e of stepWorld(world, world.player, constants.SIM.stepMs)) if (e.type === "goal") scene.onGoal(e.scorer);
+    assert.equal(world.run.status, "complete");
+    assert.equal(world.run.winner, winner);
+    if (present) {
+      const names = calls.map((c) => c.name);
+      assert.deepEqual(names, winner === "player" ? ["score", "gameOver", "event"] : ["score", "gameOver"]);
+      assert.equal(calls[0].args[0], world.run.playerScore);
+      if (winner === "player") {
+        assert.equal(calls[2].args[0], "match-won");
+        assert.equal(JSON.stringify(calls[2].args[1]), JSON.stringify({ playerScore: 7, opponentScore: 3, seconds: Math.round(world.run.elapsedMs / 1000) }));
+      }
+    } else assert.equal(calls.length, 0);
+  }
 }
-console.log("Actual match-end path forwards once and remains playable without SDK");
+console.log("Real match-end path reports once (match-won only on a player win) and stays playable without the SDK");

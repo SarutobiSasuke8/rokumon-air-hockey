@@ -1,14 +1,14 @@
 import Phaser from "phaser";
 
 /**
- * Player paddle control: follow the primary pointer (mouse drag or touch)
- * anywhere in the scene. Falls back to arrow keys / WASD for desktop users
- * who prefer a keyboard, moving the paddle at a fixed speed toward the same
- * target point model so both inputs share one code path.
+ * Player paddle control: the mallet follows the mouse (moving or dragging)
+ * or a finger anywhere in the scene. Arrow keys / WASD also work; while a key
+ * is held the keyboard owns the mallet, and the next pointer move takes it
+ * back.
  */
 export interface PlayerActions {
   /** Latest pointer position in world space, or null while keyboard input
-   * owns the paddle. A new drag restores pointer control. */
+   * owns the paddle. The next pointer move restores pointer control. */
   pointerTarget(): { x: number; y: number } | null;
   keyboardVector(): { x: number; y: number };
   restartPressed(): boolean;
@@ -16,14 +16,15 @@ export interface PlayerActions {
 
 export function createPlayerActions(scene: Phaser.Scene): PlayerActions {
   let lastPointer: { x: number; y: number } | null = null;
+  // pointer.x / pointer.y are game coordinates, updated as soon as the DOM
+  // event arrives. (worldX / worldY only refresh on the next game step, which
+  // added a frame of lag.) The camera never scrolls or zooms here.
 
   scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
-    if (pointer.isDown || pointer.wasTouch) {
-      lastPointer = { x: pointer.worldX, y: pointer.worldY };
-    }
+    lastPointer = { x: pointer.x, y: pointer.y };
   });
   scene.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-    lastPointer = { x: pointer.worldX, y: pointer.worldY };
+    lastPointer = { x: pointer.x, y: pointer.y };
   });
 
   const keys = scene.input.keyboard!.addKeys({
