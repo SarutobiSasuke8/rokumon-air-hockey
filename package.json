@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node scripts/test-controls.mjs && node scripts/test-hub.mjs && node scripts/test-physics.mjs",
+    "test": "node scripts/test-controls.mjs && node scripts/test-hub.mjs && node scripts/test-physics.mjs && node scripts/test-crazygames.mjs",
     "verify": "npm test && npm run build",
     "test:browser": "node scripts/hub-smoke.mjs"
   },
