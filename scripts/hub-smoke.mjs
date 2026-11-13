@@ -27,6 +27,10 @@ try {
     const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: "block" });
     const page = await context.newPage();
     const errors = [];
+    const artResponses = new Set();
+    page.on("response", response => {
+      if (response.url().includes("/assets/art/") && response.status() === 200) artResponses.add(response.url());
+    });
     page.on("pageerror", error => errors.push(error.message));
     await page.route("**/*", async route => {
       const request = route.request();
@@ -38,10 +42,12 @@ try {
     });
     await page.goto(origin + mount);
     await page.locator("canvas").waitFor();
+    await page.waitForFunction(() => window.__GAME_DEBUG__?.snapshotState().scenes.includes("Menu"));
     await page.keyboard.press("Space");
     await page.waitForFunction(() => window.__GAME_DEBUG__?.snapshotState().status === "playing");
+    assert.equal(artResponses.size, 4, "all four art exports load under the nested hub path");
     await page.keyboard.press("ArrowUp");
-    await page.screenshot({ path: `tests/evidence/2026-10-14-hub-${sdk ? "sdk" : "standalone"}.png` });
+    await page.screenshot({ path: `tests/evidence/hub-${sdk ? "sdk" : "standalone"}.png` });
     if (sdk) assert.ok(await page.evaluate(() => window.hubCalls.some(call => call.name === "ready")));
     else assert.equal(await page.evaluate(() => typeof window.Hub), "undefined");
     assert.deepEqual(errors, []);

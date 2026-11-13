@@ -65,7 +65,7 @@ Other scripts, as defined in `package.json`:
 - [Vite](https://vitejs.dev/)
 - Plain Node scripts and Playwright for tests (no test framework).
 
-All visuals are generated at runtime and all sound effects are synthesised with the Web Audio API. The repository ships no image or audio files, and the asset manifest is intentionally empty.
+The original table material, two mallets and puck use compressed raster artwork, with sources and exact generation prompts retained in `assets/source/`. Rails and markings are drawn from the simulation bounds. Procedural fallback textures preserve play if images fail. Sound effects are synthesised with the Web Audio API. See [the art review](docs/ART_PASS_20261113.md) for provenance, dimensions and in-game proof.
 
 ## Project layout
 

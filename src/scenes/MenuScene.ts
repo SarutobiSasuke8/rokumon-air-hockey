@@ -1,62 +1,22 @@
 import Phaser from "phaser";
-import { TABLE, MATCH } from "../game/constants.js";
+import { MATCH } from "../game/constants.js";
 import { sfx } from "../systems/audio.js";
+import { drawMenuArena } from "../art/table.js";
 
 export class MenuScene extends Phaser.Scene {
-  constructor() {
-    super("Menu");
-  }
-
+  constructor() { super("Menu"); }
   create(): void {
-    this.cameras.main.setBackgroundColor("#0b1020");
-
-    this.add
-      .text(TABLE.centerX, 150, "ROKUMON AIR HOCKEY", {
-        fontFamily: "sans-serif",
-        fontSize: "46px",
-        fontStyle: "bold",
-        color: "#e7efff",
-      })
-      .setOrigin(0.5);
-
-    this.add
-      .text(TABLE.centerX, 210, `First to ${MATCH.winScore} goals wins`, {
-        fontFamily: "sans-serif",
-        fontSize: "20px",
-        color: "#93c5fd",
-      })
-      .setOrigin(0.5);
-
-    this.add
-      .text(
-        TABLE.centerX,
-        320,
-        "Move your mallet (cyan, right half) with the mouse or a finger.\nArrow keys / WASD also work. Score in the pink goal on the left.",
-        {
-          fontFamily: "sans-serif",
-          fontSize: "18px",
-          color: "#cbd5e1",
-          align: "center",
-        },
-      )
-      .setOrigin(0.5);
-
-    const prompt = this.add
-      .text(TABLE.centerX, 420, "Click, tap, or press Space to start", {
-        fontFamily: "sans-serif",
-        fontSize: "22px",
-        color: "#fbbf24",
-      })
-      .setOrigin(0.5);
-
-    this.tweens.add({ targets: prompt, alpha: 0.35, duration: 650, yoyo: true, repeat: -1 });
-
-    const start = () => {
-      sfx.unlock();
-      sfx.serve();
-      this.scene.start("Game");
-    };
-
+    drawMenuArena(this);
+    const text = (x: number, y: number, value: string, size: number, colour: string, bold = false) =>
+      this.add.text(x, y, value, { fontFamily: "Arial, sans-serif", fontSize: size, color: colour, fontStyle: bold ? "bold" : "normal" }).setDepth(6);
+    text(76, 91, "ROKUMON  /  ARCADE", 14, "#9ab7cd", true);
+    text(72, 130, "AIR\nHOCKEY", 66, "#f0f7ff", true).setLineSpacing(-9);
+    text(76, 285, `First to ${MATCH.winScore}. Make every shot count.`, 19, "#7de7f4");
+    text(76, 333, "YOU: cyan mallet, right half.\nScore in the pink goal on the left.", 17, "#c5d6e5").setLineSpacing(7);
+    this.add.rectangle(300, 433, 448, 56, 0x0d667c).setStrokeStyle(2, 0x53d7e8).setDepth(6);
+    text(300, 433, "START MATCH", 24, "#effbff", true).setOrigin(0.5);
+    text(300, 477, "Click / tap / Space   ·   Move: pointer or WASD", 15, "#afc4d6").setOrigin(0.5);
+    const start = () => { sfx.unlock(); sfx.serve(); this.scene.start("Game"); };
     this.input.keyboard!.once("keydown-SPACE", start);
     this.input.once("pointerdown", start);
   }
