@@ -8,6 +8,7 @@ import { GameOverScene } from "./scenes/GameOverScene.js";
 import { LobbyScene } from "./scenes/LobbyScene.js";
 import { OnlineScene } from "./scenes/OnlineScene.js";
 import { installDebug } from "./systems/debug.js";
+import { installCrazyGames } from "./integrations/crazygames.js";
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -23,7 +24,11 @@ const game = new Phaser.Game({
 });
 
 // Drop the static "LOADING TABLE" line once Phaser has booted.
-game.events.once(Phaser.Core.Events.READY, () => document.getElementById("loading")?.remove());
+game.events.once(Phaser.Core.Events.READY, () => {
+  document.getElementById("loading")?.remove();
+  // CrazyGames lifecycle reporting. A no-op unless the game runs on a CrazyGames host.
+  void installCrazyGames(game);
+});
 
 // Test hooks (state snapshot, deterministic stepping) used by the browser tests.
 installDebug(game);

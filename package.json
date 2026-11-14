@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node scripts/test-controls.mjs && node scripts/test-hub.mjs && node scripts/test-physics.mjs && node scripts/test-difficulty.mjs && node scripts/test-audio.mjs && node scripts/test-match-server.mjs",
+    "test": "node scripts/test-controls.mjs && node scripts/test-hub.mjs && node scripts/test-physics.mjs && node scripts/test-crazygames.mjs && node scripts/test-difficulty.mjs && node scripts/test-audio.mjs && node scripts/test-match-server.mjs",
     "match:server": "node scripts/match-server.mjs",
     "test:experience": "node scripts/test-experience.mjs",
     "verify": "npm test && npm run build",
