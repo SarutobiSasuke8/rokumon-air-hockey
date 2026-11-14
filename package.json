@@ -7,12 +7,15 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node scripts/test-controls.mjs && node scripts/test-hub.mjs && node scripts/test-physics.mjs",
+    "test": "node scripts/test-controls.mjs && node scripts/test-hub.mjs && node scripts/test-physics.mjs && node scripts/test-difficulty.mjs && node scripts/test-audio.mjs && node scripts/test-match-server.mjs",
+    "match:server": "node scripts/match-server.mjs",
+    "test:experience": "node scripts/test-experience.mjs",
     "verify": "npm test && npm run build",
     "test:browser": "node scripts/hub-smoke.mjs"
   },
   "dependencies": {
-    "phaser": "^4.2.1"
+    "phaser": "^4.2.1",
+    "ws": "^8.23.0"
   },
   "devDependencies": {
     "playwright": "^1.63.0",

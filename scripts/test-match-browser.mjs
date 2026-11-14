@@ -68,6 +68,8 @@ async function openGame(profile, query) {
   await page.goto(`${origin}${mount}?${query}`);
   await page.locator("canvas").waitFor();
   await page.waitForFunction(() => window.__GAME_DEBUG__?.snapshotState().scenes.includes("Menu"));
+  // Preserve the original hard-opponent regression; dedicated menu tests cover easy default.
+  await page.keyboard.press("3");
   const box = await page.locator("canvas").boundingBox();
   const toScreen = (p) => ({ x: box.x + (p.x * box.width) / TABLE.width, y: box.y + (p.y * box.height) / TABLE.height });
   const cdp = profile.touch ? await context.newCDPSession(page) : null;
@@ -103,7 +105,7 @@ async function playMatch(profile) {
   const { context, page, errors, input, box } = await openGame(profile, `manual=1&seed=${profile.seed}`);
   assert.ok(box.width > 300, `${profile.name}: canvas is laid out (${box.width}px wide)`);
   await shot(page, profile, "1-title");
-  await input.tap({ x: 860, y: 285 });
+  await input.tap({ x: 184, y: 412 });
   await page.waitForFunction(() => window.__GAME_DEBUG__.snapshotState().scenes.includes("Game"));
 
   let state = await page.evaluate(() => window.__GAME_DEBUG__.snapshotState());
@@ -166,7 +168,7 @@ async function playMatch(profile) {
 
   await page.waitForTimeout(700); // result screen ignores input for 600 ms
   await shot(page, profile, `3-result-${won ? "win" : "lose"}`);
-  await input.tap({ x: 480, y: 400 });
+  await input.tap({ x: 300, y: 411 });
   await page.waitForFunction(() => {
     const s = window.__GAME_DEBUG__.snapshotState();
     return s.scenes.includes("Game") && s.status === "serving" && s.playerScore === 0 && s.aiScore === 0;
@@ -180,7 +182,7 @@ async function realTimeCheck(profile) {
   // Unstepped play at normal speed: the mallet follows the pointer and the
   // served puck goes live and moves once the bot strikes it.
   const { context, page, errors, input } = await openGame(profile, "seed=2");
-  await input.tap({ x: 860, y: 285 });
+  await input.tap({ x: 184, y: 412 });
   await page.waitForFunction(() => window.__GAME_DEBUG__.snapshotState().scenes.includes("Game"));
   await input.moveTo({ x: 700, y: 200 });
   await page.waitForTimeout(400);

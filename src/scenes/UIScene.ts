@@ -35,7 +35,7 @@ export class UIScene extends Phaser.Scene {
     this.playerText = this.add.text(TABLE.width * 0.68, 8, "0", style).setOrigin(0.5, 0);
 
     this.add
-      .text(TABLE.centerX, 31, "VERSUS", {
+      .text(TABLE.centerX, 31, String(this.registry.get("difficulty") || "easy").toUpperCase(), {
         fontFamily: "sans-serif",
         fontSize: "12px",
         color: "#64748b",
@@ -117,6 +117,8 @@ export class UIScene extends Phaser.Scene {
       if (isPaused() && !over.includes(soundButton)) resume();
     });
     const keyboard = this.input.keyboard!;
+    const menuButton = this.add.text(48, 20, "MENU", { fontFamily: "Arial", fontSize: "16px", color: "#a7c1d6" }).setInteractive({ useHandCursor: true });
+    menuButton.on("pointerdown", () => { this.scene.stop("Game"); this.scene.start("Menu"); });
     keyboard.on("keydown-SPACE", resume);
     keyboard.on("keydown-P", () => (isPaused() ? resume() : pause()));
     keyboard.on("keydown-ESC", () => (isPaused() ? resume() : pause()));

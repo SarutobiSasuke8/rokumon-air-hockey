@@ -38,9 +38,11 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     const seed = testOptions.seed ?? this.registry.get("seed") ?? Math.floor(Math.random() * 2 ** 31);
-    this.world = createWorld(seed);
+    const selected = this.registry.get("difficulty");
+    this.world = createWorld(seed, selected === "normal" || selected === "hard" ? selected : "easy");
     this.accMs = 0;
     this.keyTarget = null;
+    this.lastWallSoundMs = -Infinity;
 
     this.buildTable();
     this.puckImg = this.add.image(0, 0, "tex-puck").setDisplaySize(PUCK.radius * 2 + 4, PUCK.radius * 2 + 4).setDepth(10);
@@ -106,7 +108,7 @@ export class GameScene extends Phaser.Scene {
     switch (event.type) {
       case "wall": {
         const now = this.world.run.elapsedMs;
-        if (now - this.lastWallSoundMs > 60) sfx.wallHit();
+        if (now - this.lastWallSoundMs > 60) sfx.wallHit(event.speed);
         this.lastWallSoundMs = now;
         break;
       }

@@ -1,12 +1,12 @@
 # Rokumon Air Hockey
 
-A single-player browser air hockey game. You play one table against a computer opponent, and the first side to seven goals wins. It is a plain arcade game: there is no betting, no currency and no gambling mechanic of any kind.
+A browser air hockey game with solo practice and private online rooms. First to seven goals wins. Online play requires the accompanying match service; solo play works as a static build.
 
 It is part of the Rokumon Games family of small browser games.
 
 ## Status
 
-Public beta candidate (October 2026). A full match plays to completion on desktop (mouse or keyboard) and on phones (touch), and an automated browser test plays whole matches on both. The AI is tuned against scripted players, not yet against many people, so difficulty may still move after beta feedback.
+Review build (November 2026). Easy is the default, Normal adds pace, and Hard retains the original opponent. Private rooms use authoritative server physics with independent mouse/touch controls. The new match service has not been publicly deployed; internet latency and human balance still need playtesting.
 
 ## Run it
 
@@ -18,6 +18,8 @@ npm run dev
 ```
 
 Vite prints a local address to open in a browser.
+
+For private rooms, run `npm run match:server` in a second terminal. Development and preview proxy `/match` to loopback port 8089. Public hosting needs a separately running match service and a WebSocket route; a static upload alone does not enable online play. See [the feedback pass](docs/PLAYTEST_FEEDBACK_20261114.md) and [audio notes](docs/AUDIO_2026-11-14.md).
 
 Other scripts, as defined in `package.json`:
 
@@ -44,17 +46,17 @@ Other scripts, as defined in `package.json`:
 | --- | --- |
 | Mouse (just move it, no click needed) or touch drag | Your mallet follows the pointer, up to a fast but finite speed. |
 | Arrow keys or WASD | Move your mallet at a fixed speed. The next mouse move takes control back. |
-| R | Restart the match. |
-| P or Esc | Pause or resume. The match also pauses by itself when the tab is hidden or the window loses focus; tap, click or press Space to resume. |
-| M, or the SOUND button top right | Turn sound effects on or off. The choice is remembered on this device. |
-| Space, click or tap | Start from the title screen, or play again from the end screen. |
+| R (solo) | Restart the solo match. Online rematches require both players after completion. |
+| P or Esc (solo) | Pause or resume. Solo also pauses when the tab is hidden or loses focus; click, tap or Space resumes. Online matches continue when a tab is hidden. |
+| M (solo), or the SOUND button | Master mute for music and effects, remembered on this device. The menu has a separate music switch. |
+| Space, or click/tap PLAY SOLO | Start solo. Click ONLINE MATCH for private rooms. Use PLAY AGAIN or Space after a solo match. |
 
 ## How it works
 
 - The table is a landscape 960 by 540 canvas with a goal in each end wall, a centre line and a centre circle.
 - The match runs in `src/game/sim.ts` at a fixed 240 steps a second, with no Phaser imports. The game scene feeds it the pointer or keyboard target, then draws the result, plays sound and reports to the Rokumon SDK.
 - Puck physics (`src/game/physics.ts`): each step is split so nothing moves more than half a puck radius at a time, and mallet contacts are solved as a swept circle test in the mallet's frame. A fast puck or a fast swing cannot pass through a mallet, and the puck cannot leave the table except through a goal mouth. Mallets act as heavy objects, so a swing hits harder than a block. The goal mouths have round posts.
-- The opponent (`src/game/ai.ts`) re-reads the puck every 120 ms, moves at a capped speed, predicts bank shots when defending, steps into the puck to return it, and attacks with straight or banked shots at a randomly offset aim point. It is meant to be beatable.
+- The opponent (`src/game/ai.ts`) uses Easy/Normal/Hard profiles with 280/190/120 ms reactions and 330/480/680 px/s speed caps. Easier opponents also make larger aiming and defensive errors. Puck physics is unchanged.
 - All tuning values live in `src/game/constants.ts`.
 - Test-only query flags: `?seed=N` (repeatable kick-off and AI aim), `?speed=K` (run 1 to 8 times faster) and `?manual=1` (the match only advances through `window.__GAME_DEBUG__.tick()`, which the browser test uses).
 
@@ -80,7 +82,7 @@ The original table material, two mallets and puck use compressed raster artwork,
 
 - Beta feedback on AI difficulty (`AI` in `src/game/constants.ts`).
 - On a phone held upright the table is small; the page asks the player to turn the phone sideways. A portrait table layout is not built.
-- Possible later options: a reduced-motion setting for the goal shake, a second difficulty, or local two-player.
+- Public match-service hosting and real-network latency playtests; reduced-motion setting for goal shake.
 
 ## Licence
 
