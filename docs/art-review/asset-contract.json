@@ -1,0 +1,28 @@
+[
+  {
+    "fallback": false,
+    "puck": 30,
+    "player": 58,
+    "ai": 58,
+    "playerTexture": 174,
+    "puckTexture": 90,
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "passed": true
+  },
+  {
+    "fallback": true,
+    "puck": 30,
+    "player": 58,
+    "ai": 58,
+    "playerTexture": 58,
+    "puckTexture": 30,
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "passed": true
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "sampleRate": 22050,
+  "duration": 12,
+  "peak": 0.33650562167167664,
+  "rms": 0.013704523010702133,
+  "musicLoops": 1,
+  "impacts": [
+    {
+      "at": 1,
+      "variant": 0,
+      "speed": 120
+    },
+    {
+      "at": 2,
+      "variant": 1,
+      "speed": 1100
+    },
+    {
+      "at": 3,
+      "variant": 3,
+      "speed": 450
+    },
+    {
+      "at": 4,
+      "variant": 4,
+      "speed": 950
+    },
+    {
+      "at": 5.5,
+      "variant": 2,
+      "speed": 800
+    },
+    {
+      "at": 5.8,
+      "variant": 5,
+      "speed": 700
+    },
+    {
+      "at": 7,
+      "variant": 0,
+      "speed": 1100
+    },
+    {
+      "at": 7.25,
+      "variant": 3,
+      "speed": 850
+    },
+    {
+      "at": 9,
+      "variant": 1,
+      "speed": 500
+    },
+    {
+      "at": 10,
+      "variant": 2,
+      "speed": 900
+    }
+  ],
+  "errors": [],
+  "renderMethod": "Chrome OfflineAudioContext, actual generated buffers and runtime gains; controlled audition timing, not a recorded match.",
+  "listening": "Not verified through physical speakers or headphones."
+}

@@ -33,7 +33,8 @@ Adapt to the engine's expectations (for example Phaser's `public/assets/`), but 
 - Compress before committing when file size is meaningful (audio especially); keep originals out of the repo unless needed.
 - Sprite dimensions and tile size are project constants; document them here once chosen:
   - Tile size: not applicable; no tilemap.
-  - Base sprite resolution: procedural only. Puck and paddle circles are generated at runtime via `BootScene.makeCircleTexture` at `2*radius + 4` px (puck 30px, paddles 58px, see `src/game/constants.ts`); no image assets exist.
+  - Runtime artwork: `public/assets/art/`, loaded centrally by BootScene. Mallets use 174px alpha textures displayed at 58px (54px disc plus 2px transparent margin on each side); puck uses 90px displayed at 30px (26px disc plus 2px margin). Each raster export has a matching procedural fallback at the same display size. Collision radii remain 27 and 13 in `src/game/constants.ts`.
+  - Full-resolution flattened masters and exact generation prompts: `assets/source/`, excluded from Vite's shipping output. Export/source hashes and dimensions: `assets/asset-manifest.json`. Table material is 1794x876, drawn within the exact 880x430 playing area. All markings and rails use simulation bounds, not generated lines.
   - Target aspect ratio / virtual resolution: 960x540 (16:9), landscape, `Phaser.Scale.FIT`.
 
 ## Loading

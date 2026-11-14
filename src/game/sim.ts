@@ -1,7 +1,7 @@
 // One match of air hockey as plain data, with no Phaser imports. GameScene
 // feeds it the player's target point each fixed step and renders the result;
 // the Node tests drive it directly to play whole seeded matches.
-import { TABLE, PUCK, PADDLE, MATCH } from "./constants.js";
+import { TABLE, PUCK, PADDLE, MATCH, type Difficulty } from "./constants.js";
 import { createRunState, type RunState } from "./state.js";
 import { approach, clampMallet, stepPuck, type Puck, type Vec } from "./physics.js";
 import { createAi, createRng, stepAi, type AiBrain } from "./ai.js";
@@ -20,6 +20,8 @@ export type SimEvent =
   | { type: "match-over"; winner: Side };
 
 export interface World {
+  readonly difficulty: Difficulty;
+  mode: "solo" | "online";
   run: RunState;
   puck: Puck;
   player: Vec;
@@ -37,15 +39,17 @@ export function serveSpot(side: Side): Vec {
   return { x: TABLE.centerX + (side === "player" ? 1 : -1) * PUCK.serveOffsetX, y: TABLE.centerY };
 }
 
-export function createWorld(seed = 1): World {
+export function createWorld(seed = 1, difficulty: Difficulty = "hard"): World {
   const rng = createRng(seed);
   const first: Side = rng() < 0.5 ? "player" : "ai";
   const world: World = {
+    difficulty,
+    mode: "solo",
     run: createRunState(seed),
     puck: { ...serveSpot(first), vx: 0, vy: 0 },
     player: { ...PLAYER_HOME },
     ai: { ...AI_HOME },
-    brain: createAi(rng),
+    brain: createAi(rng, difficulty),
     timerMs: MATCH.serveDelayMs,
     sideMs: 0,
     matchOverSent: false,
@@ -64,7 +68,7 @@ function queueServe(world: World, side: Side): void {
  * Advance the match by dtMs. `playerTarget` is where the player wants the
  * mallet (pointer or keyboard), or null to leave it where it is.
  */
-export function stepWorld(world: World, playerTarget: Vec | null, dtMs: number): SimEvent[] {
+export function stepWorld(world: World, playerTarget: Vec | null, dtMs: number, leftTarget: Vec | null = null): SimEvent[] {
   const events: SimEvent[] = [];
   const run = world.run;
   const dt = dtMs / 1000;
@@ -81,7 +85,10 @@ export function stepWorld(world: World, playerTarget: Vec | null, dtMs: number):
   const serving = run.status === "serving";
   const want = playerTarget ? clampMallet("right", playerTarget.x, playerTarget.y) : world.player;
   const playerTo = clampMallet("right", ...xy(approach(world.player, want, PADDLE.playerMaxSpeed * dt)));
-  const aiTo = stepAi(world.brain, world.puck, world.ai, dtMs, serving);
+  const leftWant = leftTarget ? clampMallet("left", leftTarget.x, leftTarget.y) : world.ai;
+  const aiTo = world.mode === "online"
+    ? clampMallet("left", ...xy(approach(world.ai, leftWant, PADDLE.playerMaxSpeed * dt)))
+    : stepAi(world.brain, world.puck, world.ai, dtMs, serving);
 
   if (serving) {
     world.player = playerTo;

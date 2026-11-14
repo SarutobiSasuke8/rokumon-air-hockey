@@ -1,5 +1,53 @@
 {
-  "$schema": "https://example.invalid/browser-game-asset-manifest.schema.json",
-  "version": 1,
-  "assets": []
+  "version": 2,
+  "assets": [
+    {
+      "key": "art-table-surface",
+      "path": "public/assets/art/table-surface-v1.webp",
+      "width": 1794,
+      "height": 876,
+      "bytes": 117050,
+      "sha256": "122d9ea3f5aa504f16df0d61f94b53c05a05aaffebd3f83b684caea949dc7272",
+      "source": "assets/source/table-surface-v1.png",
+      "sourceSha256": "4d22e4669f3c0030264669cf592ce8eea3575b5368fcd1ea0e0c796282a75b46",
+      "provenance": "assets/source/art-20261113.json",
+      "status": "integrated-review-candidate"
+    },
+    {
+      "key": "tex-paddle-player",
+      "path": "public/assets/art/mallet-cyan-v1.webp",
+      "width": 174,
+      "height": 174,
+      "bytes": 25566,
+      "sha256": "3aa69b98c669892dd3a6cb785debfb54b5dfc54528213041861838536e503446",
+      "source": "assets/source/mallet-cyan-v1.png",
+      "sourceSha256": "8099f27f1641de72f31b55cf8414131621f8a2a486374723bd38129aaaf57850",
+      "provenance": "assets/source/art-20261113.json",
+      "status": "integrated-review-candidate"
+    },
+    {
+      "key": "tex-paddle-ai",
+      "path": "public/assets/art/mallet-coral-v1.webp",
+      "width": 174,
+      "height": 174,
+      "bytes": 27806,
+      "sha256": "6ecb5bead3ae301e19c5bd2025bc691ba93cc7cfb9d24dbfbd77d423e6a5650c",
+      "source": "assets/source/mallet-coral-v1.png",
+      "sourceSha256": "db2eacccd9dafef59ee50e03daa9dde67d547c8a569183457d33d2a8400962bc",
+      "provenance": "assets/source/art-20261113.json",
+      "status": "integrated-review-candidate"
+    },
+    {
+      "key": "tex-puck",
+      "path": "public/assets/art/puck-ivory-v1.webp",
+      "width": 90,
+      "height": 90,
+      "bytes": 7228,
+      "sha256": "45d57d95a681f0b11aed6799245c70d37421db0d04a0ce869fae779c39a195ee",
+      "source": "assets/source/puck-ivory-v1.png",
+      "sourceSha256": "8534f5a1d0bac4168fd71bdd9a7b0cd4c175e8f91b59a3f0a208dea1bd58b5f2",
+      "provenance": "assets/source/art-20261113.json",
+      "status": "integrated-review-candidate"
+    }
+  ]
 }

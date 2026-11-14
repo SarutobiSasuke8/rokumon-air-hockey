@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-13",
+  "tool": "built-in image_gen",
+  "status": "source-integrated review candidates; not released",
+  "normalisation": "Sharp alpha trim threshold10; mallet diameter162px +6px transparent margin per side =>174px, displayed58px =>54px physical diameter; puck78+12=>90px displayed30px =>26px physical diameter. Slight generator aspect deviations normalised to exact circular collision footprint. Surface1794x876 displayed880x430. Alpha preserved, no background removal or shader recolouring.",
+  "assets": [
+    {
+      "id": "table-surface-v1",
+      "prompt": "Create a production in-game air hockey playfield surface texture, WIDE 2:1 landscape rectangle. Strict orthographic directly overhead view, flat seamless planar rectangular laminate filling the entire image edge to edge. Premium midnight-navy arcade sports material with subtle fine blue air perforations, brushed polymer sheen, restrained electric cyan illumination on the rightmost edge and deep coral-magenta illumination on the leftmost edge. A very faint large abstract Japanese seigaiha wave engraving and restrained angular flowing streaks mostly near the perimeter, centre remains calm dark navy for fast white puck visibility. Sophisticated physical arcade-table finish, polished but not mirror-reflective, tiny restrained metallic highlights, uniform low-contrast surface. NO objects, NO pucks, NO mallets, NO text, NO numbers, NO logos, NO centre line, NO centre circle, NO goals, NO boundaries, NO border, NO perspective, NO room, NO UI. This is one flat playing-surface material only; exact gameplay markings and rails are drawn by the game. Make this artwork look premium and tactile at 880 by 430 screen pixels.",
+      "referenceImages": [],
+      "source": "table-surface-v1.png",
+      "runtime": "public/assets/art/table-surface-v1.webp"
+    },
+    {
+      "id": "mallet-cyan-v1",
+      "prompt": "Production 2D game sprite: ONE premium cyan air-hockey mallet, isolated on truly transparent background, square image. Exact top-down orthographic camera looking straight vertically down onto the centre: PERFECTLY CIRCULAR symmetric outer footprint, not an ellipse. Broad electric-cyan glossy polymer circular base, darker teal rubber edge, a smaller concentric rounded grip cap seen directly from above. Convincing concentric bevels, moulded plastic, tiny clean specular highlights from upper-left, a subtle engraved six-coin dot motif on grip (six small circles in two rows of three, no text). Designed to read at54 screen pixels diameter: bold shapes, no fussy microdetails. All geometry centred exactly, object fills central80% of square with even transparent margin on every side. No floor, no drop shadow, no cast shadow, no halo, no glow outside silhouette, no text, no letters, no branding, no additional objects, no hand, no perspective side view. High-end arcade sports game material rendering, smoothly antialiased edges.",
+      "referenceImages": [],
+      "source": "mallet-cyan-v1.png",
+      "runtime": "public/assets/art/mallet-cyan-v1.webp"
+    },
+    {
+      "id": "mallet-coral-v1",
+      "prompt": "Edit the supplied air-hockey mallet sprite into the opponent's CORAL-PINK variant. Keep exactly the same top-down circular geometry, concentric base and grip dimensions, six engraved coin marks, lighting, material, camera and transparent margins. Change only the cyan/teal polymer colours to rich coral-pink with a darker burgundy outer rubber edge. Keep bright ivory specular highlights neutral. No text, no extra objects, no drop shadow or glow, true transparent background. The complete circular silhouette must stay intact and fully inside the square canvas. Match the original premium arcade material rendering.",
+      "referenceImages": [
+        "mallet-cyan-v1.png"
+      ],
+      "source": "mallet-coral-v1.png",
+      "runtime": "public/assets/art/mallet-coral-v1.webp"
+    },
+    {
+      "id": "puck-ivory-v1",
+      "prompt": "Production 2D game sprite, ONE small air-hockey puck viewed EXACTLY vertically from overhead with a perfectly circular outer footprint, isolated on a truly transparent square canvas. Premium ivory-white polished low-profile plastic disc, narrow warm-gold bevel edge and tiny charcoal groove, white centre with a subtle embossed six-dot mark (two rows of three). Bright high-visibility white mass that will read instantly at26px diameter on a dark navy table. Centre perfectly in square, even transparent margins, full object intact. Tactile arcade sports material with restrained upper-left specular highlight, no perspective tilt, no side view, no text, no logos, no extra objects, no drop shadow, no glow, no motion trails, no floor.",
+      "referenceImages": [],
+      "source": "puck-ivory-v1.png",
+      "runtime": "public/assets/art/puck-ivory-v1.webp"
+    }
+  ]
+}

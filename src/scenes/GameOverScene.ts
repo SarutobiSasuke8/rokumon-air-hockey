@@ -1,58 +1,25 @@
 import Phaser from "phaser";
-import { TABLE } from "../game/constants.js";
 import { sfx } from "../systems/audio.js";
-
-interface GameOverData {
-  playerScore: number;
-  aiScore: number;
-  won: boolean;
-}
-
+import { drawMenuArena } from "../art/table.js";
+interface GameOverData { playerScore: number; aiScore: number; won: boolean }
 export class GameOverScene extends Phaser.Scene {
-  constructor() {
-    super("GameOver");
-  }
-
+  constructor() { super("GameOver"); }
   create(data: GameOverData): void {
-    this.cameras.main.setBackgroundColor("#0b1020");
-
-    this.add
-      .text(TABLE.centerX, 190, data.won ? "YOU WIN" : "YOU LOSE", {
-        fontFamily: "sans-serif",
-        fontSize: "54px",
-        fontStyle: "bold",
-        color: data.won ? "#22d3ee" : "#fb7185",
-      })
-      .setOrigin(0.5);
-
-    this.add
-      .text(TABLE.centerX, 260, `${data.playerScore} - ${data.aiScore}`, {
-        fontFamily: "sans-serif",
-        fontSize: "32px",
-        color: "#e7efff",
-      })
-      .setOrigin(0.5);
-
-    const prompt = this.add
-      .text(TABLE.centerX, 340, "Click, tap, or press Space to play again", {
-        fontFamily: "sans-serif",
-        fontSize: "20px",
-        color: "#fbbf24",
-      })
-      .setOrigin(0.5);
-
-    this.tweens.add({ targets: prompt, alpha: 0.35, duration: 650, yoyo: true, repeat: -1 });
-
-    const restart = () => {
-      sfx.serve();
-      this.scene.start("Game");
-    };
-
-    // A short guard so a tap or key still held from the last rally does not
-    // skip the result screen.
+    drawMenuArena(this);
+    const text = (y: number, value: string, size: number, colour: string) =>
+      this.add.text(300, y, value, { fontFamily: "Arial, sans-serif", fontSize: size, fontStyle: "bold", color: colour }).setOrigin(0.5).setDepth(6);
+    text(110, "ROKUMON  /  MATCH RESULT", 15, "#9ab7cd");
+    text(190, data.won ? "YOU WIN" : "MATCH OVER", 48, data.won ? "#73e8f4" : "#ff99ac");
+    text(274, `${data.playerScore}  :  ${data.aiScore}`, 64, "#f0f7ff");
+    text(329, "YOU                         AI", 15, "#9ab7cd");
+    const play = this.add.rectangle(300, 411, 420, 58, 0x0d667c).setStrokeStyle(2, 0x53d7e8).setDepth(6).setInteractive({ useHandCursor: true });
+    text(411, "PLAY AGAIN", 24, "#effbff");
+    const menu = text(479, "MENU / CHANGE DIFFICULTY", 16, "#afc4d6").setInteractive({ useHandCursor: true });
+    const restart = () => { sfx.unlock(); sfx.serve(); this.scene.start("Game"); };
     this.time.delayedCall(600, () => {
       this.input.keyboard!.once("keydown-SPACE", restart);
-      this.input.once("pointerdown", restart);
+      play.once("pointerdown", restart);
+      menu.once("pointerdown", () => this.scene.start("Menu"));
     });
   }
 }

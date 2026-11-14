@@ -1,6 +1,7 @@
 import Phaser from "phaser";
-import { TABLE, PADDLE, SIM } from "../game/constants.js";
-import { GOAL_BOTTOM, GOAL_TOP, type Vec } from "../game/physics.js";
+import { TABLE, PADDLE, PUCK, SIM } from "../game/constants.js";
+import type { Vec } from "../game/physics.js";
+import { drawArena } from "../art/table.js";
 import { createWorld, stepWorld, type SimEvent, type Side, type World } from "../game/sim.js";
 import type { RunState } from "../game/state.js";
 import { createPlayerActions, type PlayerActions } from "../systems/input.js";
@@ -37,14 +38,16 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     const seed = testOptions.seed ?? this.registry.get("seed") ?? Math.floor(Math.random() * 2 ** 31);
-    this.world = createWorld(seed);
+    const selected = this.registry.get("difficulty");
+    this.world = createWorld(seed, selected === "normal" || selected === "hard" ? selected : "easy");
     this.accMs = 0;
     this.keyTarget = null;
+    this.lastWallSoundMs = -Infinity;
 
     this.buildTable();
-    this.puckImg = this.add.image(0, 0, "tex-puck").setDepth(10);
-    this.playerImg = this.add.image(0, 0, "tex-paddle-player").setDepth(11);
-    this.aiImg = this.add.image(0, 0, "tex-paddle-ai").setDepth(11);
+    this.puckImg = this.add.image(0, 0, "tex-puck").setDisplaySize(PUCK.radius * 2 + 4, PUCK.radius * 2 + 4).setDepth(10);
+    this.playerImg = this.add.image(0, 0, "tex-paddle-player").setDisplaySize(PADDLE.radius * 2 + 4, PADDLE.radius * 2 + 4).setDepth(11);
+    this.aiImg = this.add.image(0, 0, "tex-paddle-ai").setDisplaySize(PADDLE.radius * 2 + 4, PADDLE.radius * 2 + 4).setDepth(11);
     this.actions = createPlayerActions(this);
 
     this.goalFlash = this.add
@@ -105,7 +108,7 @@ export class GameScene extends Phaser.Scene {
     switch (event.type) {
       case "wall": {
         const now = this.world.run.elapsedMs;
-        if (now - this.lastWallSoundMs > 60) sfx.wallHit();
+        if (now - this.lastWallSoundMs > 60) sfx.wallHit(event.speed);
         this.lastWallSoundMs = now;
         break;
       }
@@ -160,50 +163,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildTable(): void {
-    this.cameras.main.setBackgroundColor("#0b1020");
-    const g = this.add.graphics().setDepth(0);
-
-    // Goal pockets behind each mouth.
-    g.fillStyle(0x0b1326, 1);
-    g.fillRect(TABLE.x0 - 30, GOAL_TOP, 30, GOAL_BOTTOM - GOAL_TOP);
-    g.fillRect(TABLE.x1, GOAL_TOP, 30, GOAL_BOTTOM - GOAL_TOP);
-
-    // Rink surface.
-    g.fillStyle(0x0f1b33, 1);
-    g.fillRect(TABLE.x0, TABLE.y0, TABLE.x1 - TABLE.x0, TABLE.y1 - TABLE.y0);
-
-    // Centre line and circle.
-    g.lineStyle(2, 0x334155, 1);
-    g.beginPath();
-    g.moveTo(TABLE.centerX, TABLE.y0);
-    g.lineTo(TABLE.centerX, TABLE.y1);
-    g.strokePath();
-    g.strokeCircle(TABLE.centerX, TABLE.centerY, 60);
-
-    // Boundary, open at the goal mouths.
-    g.lineStyle(3, 0x475569, 1);
-    g.beginPath();
-    g.moveTo(TABLE.x0, GOAL_TOP);
-    g.lineTo(TABLE.x0, TABLE.y0);
-    g.lineTo(TABLE.x1, TABLE.y0);
-    g.lineTo(TABLE.x1, GOAL_TOP);
-    g.moveTo(TABLE.x1, GOAL_BOTTOM);
-    g.lineTo(TABLE.x1, TABLE.y1);
-    g.lineTo(TABLE.x0, TABLE.y1);
-    g.lineTo(TABLE.x0, GOAL_BOTTOM);
-    g.strokePath();
-
-    // Goal mouths: AI defends the left (pink), you defend the right (cyan).
-    g.lineStyle(4, 0xfb7185, 0.9);
-    g.beginPath();
-    g.moveTo(TABLE.x0 - 2, GOAL_TOP);
-    g.lineTo(TABLE.x0 - 2, GOAL_BOTTOM);
-    g.strokePath();
-    g.lineStyle(4, 0x22d3ee, 0.9);
-    g.beginPath();
-    g.moveTo(TABLE.x1 + 2, GOAL_TOP);
-    g.lineTo(TABLE.x1 + 2, GOAL_BOTTOM);
-    g.strokePath();
+    drawArena(this);
   }
 
   private juiceGoal(scorer: Side): void {

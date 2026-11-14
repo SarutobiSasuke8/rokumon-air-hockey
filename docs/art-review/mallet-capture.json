@@ -1,0 +1,92 @@
+[
+  {
+    "name": "desktop",
+    "errors": [],
+    "state": {
+      "scenes": [
+        "Game",
+        "UI"
+      ],
+      "seed": 11,
+      "playerScore": 0,
+      "aiScore": 0,
+      "elapsedMs": 541.6666666666673,
+      "status": "playing",
+      "winner": null,
+      "puck": {
+        "x": 807.035392793182,
+        "y": 285,
+        "vx": 946.1477985667176,
+        "vy": 0
+      },
+      "player": {
+        "x": 850,
+        "y": 285
+      },
+      "ai": {
+        "x": 249.19569029471788,
+        "y": 300.0630912254559
+      }
+    }
+  },
+  {
+    "name": "phone",
+    "errors": [],
+    "state": {
+      "scenes": [
+        "Game",
+        "UI"
+      ],
+      "seed": 11,
+      "playerScore": 0,
+      "aiScore": 0,
+      "elapsedMs": 375.0000000000003,
+      "status": "playing",
+      "winner": null,
+      "puck": {
+        "x": 644.9552214161923,
+        "y": 285,
+        "vx": 997.9788916666088,
+        "vy": 0
+      },
+      "player": {
+        "x": 850,
+        "y": 285
+      },
+      "ai": {
+        "x": 362.04931853759183,
+        "y": 310.47957032656484
+      }
+    }
+  },
+  {
+    "name": "portrait",
+    "errors": [],
+    "state": {
+      "scenes": [
+        "Game",
+        "UI"
+      ],
+      "seed": 11,
+      "playerScore": 0,
+      "aiScore": 0,
+      "elapsedMs": 325.00000000000006,
+      "status": "playing",
+      "winner": null,
+      "puck": {
+        "x": 594.6214067434532,
+        "y": 285,
+        "vx": 1014.0749792522232,
+        "vy": 0
+      },
+      "player": {
+        "x": 850,
+        "y": 285
+      },
+      "ai": {
+        "x": 395.90540701045404,
+        "y": 313.60451405689753
+      }
+    }
+  }
+]

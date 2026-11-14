@@ -5,6 +5,8 @@ import { MenuScene } from "./scenes/MenuScene.js";
 import { GameScene } from "./scenes/GameScene.js";
 import { UIScene } from "./scenes/UIScene.js";
 import { GameOverScene } from "./scenes/GameOverScene.js";
+import { LobbyScene } from "./scenes/LobbyScene.js";
+import { OnlineScene } from "./scenes/OnlineScene.js";
 import { installDebug } from "./systems/debug.js";
 import { installCrazyGames } from "./integrations/crazygames.js";
 
@@ -18,7 +20,7 @@ const game = new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [BootScene, MenuScene, GameScene, UIScene, GameOverScene],
+  scene: [BootScene, MenuScene, GameScene, UIScene, GameOverScene, LobbyScene, OnlineScene],
 });
 
 // Drop the static "LOADING TABLE" line once Phaser has booted.

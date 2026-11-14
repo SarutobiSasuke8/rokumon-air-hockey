@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { TABLE } from "../game/constants.js";
+import { TABLE, MATCH } from "../game/constants.js";
 import { sfx } from "../systems/audio.js";
 
 /**
@@ -21,30 +21,33 @@ export class UIScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.add.rectangle(TABLE.width * 0.32 - 14, 30, 142, 44, 0x251b2c).setStrokeStyle(1, 0x82445b);
+    this.add.rectangle(TABLE.width * 0.68 + 14, 30, 142, 44, 0x102a38).setStrokeStyle(1, 0x287c92);
+    this.add.text(TABLE.centerX, 18, `FIRST TO ${MATCH.winScore}`, { fontFamily: "sans-serif", fontSize: "14px", fontStyle: "bold", color: "#a7c1d6" }).setOrigin(0.5);
     const style: Phaser.Types.GameObjects.Text.TextStyle = {
       fontFamily: "sans-serif",
-      fontSize: "40px",
+      fontSize: "36px",
       fontStyle: "bold",
       color: "#e7efff",
     };
 
-    this.aiText = this.add.text(TABLE.width * 0.32, 24, "0", style).setOrigin(0.5, 0);
-    this.playerText = this.add.text(TABLE.width * 0.68, 24, "0", style).setOrigin(0.5, 0);
+    this.aiText = this.add.text(TABLE.width * 0.32, 8, "0", style).setOrigin(0.5, 0);
+    this.playerText = this.add.text(TABLE.width * 0.68, 8, "0", style).setOrigin(0.5, 0);
 
     this.add
-      .text(TABLE.centerX, 30, "-", {
+      .text(TABLE.centerX, 31, String(this.registry.get("difficulty") || "easy").toUpperCase(), {
         fontFamily: "sans-serif",
-        fontSize: "28px",
+        fontSize: "12px",
         color: "#64748b",
       })
       .setOrigin(0.5, 0);
 
     // Labels sit beside the numbers so nothing overlaps the table edge.
     this.add
-      .text(TABLE.width * 0.32 - 34, 40, "AI", { fontFamily: "sans-serif", fontSize: "16px", fontStyle: "bold", color: "#fb7185" })
+      .text(TABLE.width * 0.32 - 34, 31, "AI", { fontFamily: "sans-serif", fontSize: "16px", fontStyle: "bold", color: "#fb7185" })
       .setOrigin(1, 0.5);
     this.add
-      .text(TABLE.width * 0.68 + 34, 40, "YOU", { fontFamily: "sans-serif", fontSize: "16px", fontStyle: "bold", color: "#22d3ee" })
+      .text(TABLE.width * 0.68 + 34, 31, "YOU", { fontFamily: "sans-serif", fontSize: "16px", fontStyle: "bold", color: "#22d3ee" })
       .setOrigin(0, 0.5);
 
     // Short notices (the 7-second possession rule) along the bottom edge.
@@ -114,6 +117,8 @@ export class UIScene extends Phaser.Scene {
       if (isPaused() && !over.includes(soundButton)) resume();
     });
     const keyboard = this.input.keyboard!;
+    const menuButton = this.add.text(48, 20, "MENU", { fontFamily: "Arial", fontSize: "16px", color: "#a7c1d6" }).setInteractive({ useHandCursor: true });
+    menuButton.on("pointerdown", () => { this.scene.stop("Game"); this.scene.start("Menu"); });
     keyboard.on("keydown-SPACE", resume);
     keyboard.on("keydown-P", () => (isPaused() ? resume() : pause()));
     keyboard.on("keydown-ESC", () => (isPaused() ? resume() : pause()));

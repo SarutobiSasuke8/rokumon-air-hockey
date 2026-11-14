@@ -46,13 +46,34 @@ export const PADDLE = Object.freeze({
   centreGap: 4,
 });
 
-export const AI = Object.freeze({
+export type Difficulty = "easy" | "normal" | "hard";
+
+export interface AiProfile {
+  readonly maxSpeed: number;
+  readonly reactionMs: number;
+  readonly aimErrorPx: number;
+  readonly defenceErrorPx: number;
+  readonly defenceInset: number;
+  readonly strikeSpeed: number;
+}
+
+const HARD_AI: AiProfile = Object.freeze({
   maxSpeed: 680, // px/s the AI mallet may move. Kept beatable.
   reactionMs: 120, // how often the AI re-reads the puck.
   aimErrorPx: 70, // random spread on where it aims inside the player's goal.
+  defenceErrorPx: 0, // legacy hard mode predicts wall bounces precisely.
   defenceInset: 46, // distance from its own goal line it guards from.
   strikeSpeed: 560, // puck speed below which the AI goes on the attack.
 });
+
+export const AI_PROFILES: Readonly<Record<Difficulty, AiProfile>> = Object.freeze({
+  easy: Object.freeze({ ...HARD_AI, maxSpeed: 330, reactionMs: 280, aimErrorPx: 150, defenceErrorPx: 45, strikeSpeed: 340 }),
+  normal: Object.freeze({ ...HARD_AI, maxSpeed: 480, reactionMs: 190, aimErrorPx: 105, defenceErrorPx: 22, strikeSpeed: 440 }),
+  hard: HARD_AI,
+});
+
+/** Compatibility alias: omitted difficulty keeps the original AI behaviour. */
+export const AI = AI_PROFILES.hard;
 
 export const MATCH = Object.freeze({
   winScore: 7,
